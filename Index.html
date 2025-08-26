@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بوابة النيّون | منشورات</title>
+<style>
+  :root{
+    --bg:#04060a;
+    --grid:#0ff3;
+    --neon:#00eaff;
+    --mag:#ff2bd6;
+    --lime:#7cff6b;
+    --card:#0d1220cc;
+    --text:#e8f6ff;
+    --muted:#9bb7c7;
+    --danger:#ff5c7a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:radial-gradient(1200px 800px at 50% 120%, #06101a 0%, #03060a 45%, #000 100%);
+    color:var(--text); font-family: "Cairo", Tahoma, sans-serif; overflow-x:hidden;
+  }
+
+  /* طبقة نجوم + شبكة نيّون */
+  .space{
+    position:fixed; inset:0; z-index:-3; background: transparent;
+  }
+  canvas#stars{position:fixed; inset:0; z-index:-3;}
+  .grid{
+    position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background:
+      linear-gradient(rgba(0,238,255,.08) 1px, transparent 1px) 0 0/ 100% 40px,
+      linear-gradient(90deg, rgba(0,238,255,.08) 1px, transparent 1px) 0 0/ 40px 100%;
+    transform: perspective(800px) rotateX(60deg) translateY(35vh);
+    filter: drop-shadow(0 0 8px #00eaff55);
+  }
+  .scanline{
+    position:fixed; inset:-2px; z-index:-1; pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      rgba(0,234,255,.03) 2px 3px
+    );
+    animation: flicker 6s linear infinite;
+  }
+  @keyframes flicker {
+    0%, 100% {opacity:.85}
+    47% {opacity:.9}
+    50% {opacity:.75}
+    53% {opacity:.95}
+  }
+
+  /* رأس الموقع */
+  header{
+    max-width:1100px; margin:24px auto 8px; padding:0 16px;
+    display:flex; gap:16px; align-items:center; justify-content:space-between;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    text-shadow:0 0 10px #00eaff88, 0 0 20px #00eaff44;
+  }
+  .logo{
+    width:44px; height:44px; border-radius:10px; position:relative; overflow:hidden;
+    box-shadow:0 0 20px #00eaff66 inset, 0 0 30px #00eaff33;
+    background: radial-gradient(circle at 30% 30%, #00eaff 0 40%, transparent 41%),
+                conic-gradient(from 0deg, #00eaff33, #ff2bd633, #7cff6b33, #00eaff33);
+  }
+  h1{
+    margin:0; font-size:22px; letter-spacing:.5px;
+  }
+
+  /* شريط وضع الأدمن/الزائر */
+  .mode-pill{
+    font-size:13px; color:var(--muted); background:#08111b; border:1px solid #0c2733;
+    padding:8px 12px; border-radius:999px; display:flex; gap:10px; align-items:center;
+  }
+  .badge{ padding:3px 8px; border-radius:999px; border:1px solid #0ff6; color:#0ff; }
+
+  /* صندوق المقدمة */
+  .intro{
+    max-width:1100px; margin:0 auto; padding: 8px 16px 0;
+  }
+  .hero{
+    position:relative; overflow:hidden;
+    background: linear-gradient(180deg, #0b1525cc, #0b1320aa);
+    border:1px solid #143043; border-radius:20px; padding:18px;
+    box-shadow: 0 0 0 1px #00eaff22 inset, 0 20px 60px #001018aa;
+  }
+  .hero h2{ margin:0 0 6px; font-weight:700; font-size:20px}
+  .hero p{ margin:0; color:var(--muted); font-size:14px}
+  .glow-ring{
+    position:absolute; inset:-2px; border-radius:20px; pointer-events:none;
+    box-shadow: 0 0 30px #00eaff33, inset 0 0 30px #00eaff22;
+    animation: ring 5s ease-in-out infinite;
+  }
+  @keyframes ring { 0%,100%{opacity:.35} 50%{opacity:.9} }
+
+  /* الحاوية الرئيسية */
+  .container{ max-width:1100px; margin:16px auto 80px; padding:0 16px; display:grid; grid-template-columns: 1fr; gap:16px;}
+  @media (min-width: 960px){ .container{ grid-template-columns: 380px 1fr; } }
+
+  /* بطاقة لوحة التحكم */
+  .card{
+    background: var(--card); border:1px solid #133044; border-radius:16px; padding:16px;
+    box-shadow: 0 0 0 1px #00eaff22 inset, 0 10px 40px #000a;
+    backdrop-filter: blur(6px);
+  }
+  .card h3{margin:0 0 12px; font-size:18px}
+  label{display:block; font-size:12px; color:var(--muted); margin:8px 0 6px}
+  input, textarea{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid #1e3a4b;
+    background:#0a1622; color:var(--text); outline:none;
+    box-shadow: inset 0 0 0 1px #00eaff22;
+  }
+  textarea{ min-height:120px; resize:vertical }
+  .row{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+  .btn{
+    width:100%; padding:12px; border:none; border-radius:12px; cursor:pointer; font-weight:700;
+    background: linear-gradient(90deg, var(--neon), #33ffd4); color:#001015;
+    box-shadow: 0 10px 24px #00eaff33, 0 0 0 1px #00eaff66 inset;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover{ transform: translateY(-2px); box-shadow: 0 16px 30px #00eaff55, 0 0 0 1px #00eaffaa inset; }
+  .btn-danger{ background: linear-gradient(90deg, #ff4f7b, #ff9a9e); color:#24000a; box-shadow: 0 10px 24px #ff5c7a44, 0 0 0 1px #ff6b8f88 inset;}
+  .hint{font-size:12px; color:var(--muted)}
+
+  /* قائمة المنشورات */
+  .feed{
+    display:grid; gap:12px;
+  }
+  .post{
+    position:relative; overflow:hidden;
+    background: linear-gradient(180deg, #0b1423, #0a1120);
+    border:1px solid #143043; border-radius:16px; padding:14px 14px 12px;
+    box-shadow: 0 0 0 1px #00eaff22 inset, 0 12px 40px #000a;
+  }
+  .post::after{
+    content:""; position:absolute; inset:-1px; border-radius:16px; pointer-events:none;
+    background: conic-gradient(from 0deg, #00eaff22, transparent 10%, transparent 80%, #ff2bd622);
+    mask: linear-gradient(#000, transparent 60%);
+    animation: sweep 6s linear infinite;
+  }
+  @keyframes sweep { to { transform: rotate(1turn);} }
+  .meta{display:flex; gap:10px; align-items:center; color:var(--muted); font-size:12px}
+  .dot{width:6px; height:6px; border-radius:50%; background: var(--neon); box-shadow: 0 0 8px var(--neon)}
+  .title{font-weight:700; font-size:16px; margin:6px 0 6px}
+  .body{white-space:pre-wrap; color:var(--text); font-size:14px}
+  .img-wrap{margin-top:10px; border-radius:12px; overflow:hidden; border:1px solid #113042}
+  .img-wrap img{display:block; width:100%; height:auto; transform: scale(1.01); transition: transform .4s ease}
+  .img-wrap:hover img{ transform: scale(1.05) }
+  .actions{display:flex; gap:8px; margin-top:10px}
+  .small{font-size:11px; color:var(--muted)}
+  .del{background:transparent; border:1px solid #ff6b8f88; color:#ff9db2; padding:8px 10px; border-radius:10px; cursor:pointer}
+  .del:hover{ background:#ff6b8f22 }
+
+  footer{
+    max-width:1100px; margin:24px auto 32px; padding:0 16px; opacity:.8; color:var(--muted); font-size:12px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .link{
+    color:#9be7ff; text-decoration:none; border-bottom:1px dashed #00eaff66; padding-bottom:2px;
+  }
+</style>
+<!-- خط اختياري -->
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- خلفية: نجوم + شبكة + سطر مسح -->
+<canvas id="stars"></canvas>
+<div class="grid"></div>
+<div class="scanline"></div>
+
+<header>
+  <div class="brand">
+    <div class="logo"></div>
+    <h1>بوابة النيّون</h1>
+  </div>
+  <div class="mode-pill">
+    <span>الوضع:</span>
+    <span id="modeBadge" class="badge">زائر</span>
+  </div>
+</header>
+
+<section class="intro">
+  <div class="hero">
+    <div class="glow-ring"></div>
+    <h2>منصة أخبار/فعاليات بنَفَس خيال علمي</h2>
+    <p>انشر تحديثاتك، صورك، أو أي حدث مهم. الواجهة تتحدث تلقائيًا للجميع في نفس اللحظة.</p>
+  </div>
+</section>
+
+<main class="container">
+  <!-- لوحة الأدمن -->
+  <aside id="adminCard" class="card" style="display:none;">
+    <h3>لوحة التحكّم</h3>
+    <div class="row">
+      <div>
+        <label>اسمك (يظهر مع المنشور)</label>
+        <input id="author" placeholder="مثال: عصام">
+      </div>
+      <div>
+        <label>كلمة سر الأدمن</label>
+        <input id="adminPass" type="password" placeholder="••••••">
+      </div>
+    </div>
+    <label>العنوان</label>
+    <input id="title">
+    <label>المحتوى</label>
+    <textarea id="content"></textarea>
+    <label>رابط صورة (اختياري)</label>
+    <input id="imageUrl" placeholder="https://...jpg">
+    <div class="row" style="margin-top:10px">
+      <button id="publishBtn" class="btn">نشر الآن</button>
+      <button id="clearBtn" class="btn btn-danger" title="تفريغ الحقول">مسح الحقول</button>
+    </div>
+    <p class="hint">نصيحة: استخدم صورًا بصيغة JPG/WEBP خفيفة لتحميل أسرع.</p>
+  </aside>
+
+  <!-- الخلاصة -->
+  <section class="card">
+    <h3 style="margin-bottom:12px">الخلاصة الحيّة</h3>
+    <div id="feed" class="feed"></div>
+    <p id="emptyHint" class="small" style="display:none">لا توجد منشورات بعد.</p>
+  </section>
+</main>
+
+<footer>
+  <span>© بوابة النيّون — يعمل بالزمن الحقيقي عبر Firestore</span>
+  <a class="link" href="https://www.instagram.com/1x_x.issam.x_x5" target="_blank" rel="noopener">إنستغرام عصام</a>
+</footer>
+
+<!-- (اختياري) تشغيل أغنية تلقائيًا: ضع song.mp3 بجانب هذا الملف ثم أزل التعليق
+<audio autoplay loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+-->
+
+<!-- Firebase (Modular v10) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, doc, deleteDoc,
+    serverTimestamp, onSnapshot, query, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  /* === Firebase Config (خاص بمشروعك) === */
+  const firebaseConfig = {
+    apiKey: "AIzaSyBPT2x-K5vXxdLgnaE0IupksEtRY9mTLCM",
+    authDomain: "isjsjdj-3a3bb.firebaseapp.com",
+    projectId: "isjsjdj-3a3bb",
+    storageBucket: "isjsjdj-3a3bb.firebasestorage.app",
+    messagingSenderId: "326900346988",
+    appId: "1:326900346988:web:09148de2e8f7b2a152a849",
+    measurementId: "G-DE0ZXG9K2M"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  /* === عناصر DOM === */
+  const feedEl = document.getElementById("feed");
+  const emptyHint = document.getElementById("emptyHint");
+  const adminCard = document.getElementById("adminCard");
+  const modeBadge = document.getElementById("modeBadge");
+  const authorEl = document.getElementById("author");
+  const passEl = document.getElementById("adminPass");
+  const titleEl = document.getElementById("title");
+  const contentEl = document.getElementById("content");
+  const imageEl = document.getElementById("imageUrl");
+  const publishBtn = document.getElementById("publishBtn");
+  const clearBtn = document.getElementById("clearBtn");
+
+  /* === وضع الأدمن عبر ?admin === */
+  let isAdmin = false;
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("admin")) {
+    adminCard.style.display = "block";
+    modeBadge.textContent = "أدمن";
+    modeBadge.style.color = "#021012";
+    modeBadge.style.background = "linear-gradient(90deg,#00eaff,#7cff6b)";
+    modeBadge.style.borderColor = "#00eaff";
+    isAdmin = true;
+  }
+
+  /* === نشر منشور === */
+  publishBtn?.addEventListener("click", async () => {
+    if (!isAdmin) return alert("افتح لوحة الأدمن عبر ?admin");
+    if (passEl.value !== "121212") return alert("كلمة السر غير صحيحة");
+
+    const data = {
+      author: (authorEl.value || "بدون اسم").trim(),
+      title: (titleEl.value || "").trim(),
+      body: (contentEl.value || "").trim(),
+      image: (imageEl.value || "").trim(),
+      createdAt: serverTimestamp()
+    };
+    if (!data.title && !data.body) return alert("اكتب عنوانًا أو محتوىً أولاً.");
+
+    await addDoc(collection(db, "posts"), data);
+    titleEl.value = ""; contentEl.value = ""; imageEl.value = "";
+  });
+
+  clearBtn?.addEventListener("click", () => {
+    titleEl.value = ""; contentEl.value = ""; imageEl.value = "";
+  });
+
+  /* === الاستماع للمنشورات (Realtime) === */
+  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+  onSnapshot(q, (snap) => {
+    feedEl.innerHTML = "";
+    if (snap.empty) { emptyHint.style.display = "block"; return; }
+    emptyHint.style.display = "none";
+
+    snap.forEach((d) => {
+      const p = d.data();
+      const card = document.createElement("article");
+      card.className = "post";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `<span class="dot"></span><span>${p.author || "مجهول"}</span>`;
+      card.appendChild(meta);
+
+      if (p.title) {
+        const t = document.createElement("div");
+        t.className = "title";
+        t.textContent = p.title;
+        card.appendChild(t);
+      }
+
+      if (p.body) {
+        const b = document.createElement("div");
+        b.className = "body";
+        b.textContent = p.body;
+        card.appendChild(b);
+      }
+
+      if (p.image) {
+        const w = document.createElement("div");
+        w.className = "img-wrap";
+        const img = document.createElement("img");
+        img.src = p.image;
+        img.alt = p.title || "صورة";
+        w.appendChild(img);
+        card.appendChild(w);
+      }
+
+      if (isAdmin) {
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const del = document.createElement("button");
+        del.className = "del";
+        del.textContent = "🗑️ حذف";
+        del.addEventListener("click", async () => {
+          if (confirm("حذف المنشور؟")) await deleteDoc(doc(db, "posts", d.id));
+        });
+        actions.appendChild(del);
+        card.appendChild(actions);
+      }
+
+      feedEl.appendChild(card);
+    });
+  });
+
+  /* === نجوم متحركة على Canvas === */
+  const cvs = document.getElementById("stars");
+  const ctx = cvs.getContext("2d");
+  let W, H, stars = [];
+  const STAR_COUNT = 160;
+
+  function resize(){
+    W = cvs.width = window.innerWidth;
+    H = cvs.height = window.innerHeight;
+    stars = Array.from({length: STAR_COUNT}, () => ({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      z: Math.random()*1 + .2,
+      r: Math.random()*1.1 + .2
+    }));
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // خلفية خفيفة جداً
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0,0,W,H);
+
+    // نجوم
+    for (const s of stars){
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = "rgba(0,234,255,.85)";
+      ctx.shadowColor = "#00eaff";
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      // حركة بطيئة
+      s.y += s.z * 0.4;
+      if (s.y > H) { s.y = -4; s.x = Math.random()*W; }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>
